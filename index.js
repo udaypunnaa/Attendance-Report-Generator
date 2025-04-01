@@ -42,15 +42,44 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Clipboard function
     function copyToClipboard() {
-        const reportText = reportDiv.innerText; // Get the text content of the report
+        let reportText = `Class : 2-CSE-4\n`;
+        reportText += `Date : ${document.querySelector("input[type='date']").value.split("-").reverse().join("-")}\n`;
+        reportText += `Day : ${document.querySelector("select").value}\n`;
+        reportText += `TOTAL STRENGTH : 63\n`;
+
+        let totalAbsentees = 0;
+        let absentNumbers = { H: [], J: [], K: [], L: [], M: [], N: [], LE: [] };
+
+        document.querySelectorAll("input[type='radio']:checked").forEach(radio => {
+            let label = radio.nextElementSibling.innerText.trim();
+            let category = radio.getAttribute('data-category');
+            absentNumbers[category].push(label);
+        });
+
+        totalAbsentees = Object.values(absentNumbers).reduce((sum, arr) => sum + arr.length, 0);
+        let totalPresentees = 63 - totalAbsentees;
+
+        reportText += `No of Presentees : ${totalPresentees}\n`;
+        reportText += `No of Absentees : ${totalAbsentees}\n`;
+        reportText += `Roll Numbers:\n`;
+
+        Object.entries(absentNumbers).forEach(([key, value]) => {
+            if (value.length > 0) {
+                reportText += `${key} : ${value.join(", ")}\n`;
+            }
+        });
+
+        // Copy formatted text
         const textArea = document.createElement("textarea");
-        textArea.value = reportText;
+        textArea.value = reportText.trim(); // Trim to remove trailing newlines
         document.body.appendChild(textArea);
         textArea.select();
         document.execCommand("copy");
         document.body.removeChild(textArea);
+
         alert("Report copied to clipboard!");
     }
+
 
     // Event listeners
     document.querySelectorAll("input[type='radio']").forEach(radio => {
